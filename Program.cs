@@ -50,12 +50,15 @@ namespace AtomicLock
 
                 if(processorsCount > 1)
                 {
+                    var currentThreadId = GetCurrentThreadId();
+
                     foreach (ProcessThread thread in Process.GetCurrentProcess().Threads)
                     {
-                        if (thread.Id == GetCurrentThreadId())
+                        if (thread.Id == currentThreadId)
                         {
                             var processorNum = threadId >= processorsCount ? threadId % processorsCount : threadId;
                             thread.ProcessorAffinity = (IntPtr)(1L << processorNum);
+                            break;
                         }
                     }
                 }
