@@ -9,15 +9,13 @@ namespace AtomicLock
 {
     public class ALock
     {
-        private volatile object _lock = null;
+        private volatile int _lock = 0;
 
-        public IDisposable Lock()
+        public IDisposable Lock(int threadId)
         {
-            var dummyObject = new object();
-
             var spinWait = new SpinWait();
 
-            while (Interlocked.CompareExchange(ref _lock, dummyObject, null) != dummyObject)
+            while (Interlocked.CompareExchange(ref _lock, threadId, 0) != threadId)
             {
                 spinWait.SpinOnce();
             }
@@ -27,7 +25,7 @@ namespace AtomicLock
 
         protected void Free()
         {
-            Interlocked.Exchange(ref _lock, null);
+            Interlocked.Exchange(ref _lock, 0);
         }
 
         private class ALockAcquired : IDisposable
